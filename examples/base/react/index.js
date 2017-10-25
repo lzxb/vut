@@ -3,7 +3,7 @@ import ReactDOM from 'react-dom'
 import { Provider } from 'vut-react'
 import App from './App'
 
-import vut from '../vut'
+import vut from '../../vut'
 
 export default ReactDOM.render((
   <Provider vut={vut}>

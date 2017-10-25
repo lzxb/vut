@@ -5,9 +5,10 @@ const webpack = require('webpack')
 module.exports = {
   entry: fs.readdirSync(__dirname).reduce((entries, dir) => {
     const fullDir = path.join(__dirname, dir)
-    const entry = path.join(fullDir, 'main.js')
-    if (fs.statSync(fullDir).isDirectory() && fs.existsSync(entry)) {
-      entries[dir] = ['babel-polyfill', entry]
+    const vue = path.join(fullDir, '/vue/index.js')
+    const react = path.join(fullDir, '/react/index.js')
+    if (fs.statSync(fullDir).isDirectory() && fs.existsSync(vue) && fs.existsSync(react)) {
+      entries[dir] = ['babel-polyfill', vue, react]
     }
     return entries
   }, {}),

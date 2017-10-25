@@ -7,12 +7,11 @@
       </div>
 </template>
 <script>
-  import Vut from '../vut'
 
   export default {
     computed: {
       census () {
-        return Vut.store.census
+        return this.$vut.store.census
       }
     }
   }
