@@ -9,27 +9,23 @@ vut
   .use(VutDep)
   .use(VutVue, { Vue })
 
-vut.create('user', {
+vut.create('census', {
   data () {
     return {
-      loading: false,
-      detail: {
-        name: null,
-        age: null
-      }
+      count: 0
     }
   },
-  load () {
-    this.loading = true
+  setCount (count) {
+    this.count = count
     this.$dep.notify()
-    setTimeout(() => {
-      this.detail = {
-        name: 'Vut',
-        age: 24
-      }
-      this.loading = false
-      this.$dep.notify()
-    }, 3000)
+  },
+  plus () {
+    this.count++
+    this.$dep.notify()
+  },
+  minus () {
+    this.count--
+    this.$dep.notify()
   }
 })
 
