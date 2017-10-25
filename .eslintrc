@@ -1,0 +1,13 @@
+{
+  "root": true,
+  "plugins": [
+    "html"
+  ],
+  "extends": [
+    "standard",
+    "standard-react"
+  ],
+  "env": {
+    "browser": true
+  }
+}
