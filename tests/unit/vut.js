@@ -25,44 +25,116 @@ ava('base', t => {
 })
 
 ava('create params error', t => {
+  const errors = []
   const vut = new Vut()
-  const errs = []
   try {
     vut.create()
   } catch (e) {
-    errs.push(e.toString())
+    errors.push(e.toString())
   }
 
   try {
     vut.create('ok', null)
   } catch (e) {
-    errs.push(e.toString())
+    errors.push(e.toString())
   }
 
   try {
     vut.create('ok', {})
   } catch (e) {
-    errs.push(e.toString())
+    errors.push(e.toString())
   }
 
   try {
     vut.create('ok', { data () {} })
   } catch (e) {
-    errs.push(e.toString())
+    errors.push(e.toString())
+  }
+
+  vut.create('ok', { data () { return {} } })
+  t.deepEqual(vut.store.ok.$state, {})
+
+  try {
+    vut.create('ok', { data () { return {} } })
+  } catch (e) {
+    errors.push(e.toString())
+  }
+
+  t.deepEqual(errors, [
+    'Error: [Vut] \'name\' not is string type',
+    'Error: [Vut] \'options\' not is object type',
+    'Error: [Vut] \'ok\' not is function type',
+    'Error: [Vut] \'ok\' return value not is object type',
+    'Error: [Vut] \'ok\' already is in store'
+  ])
+})
+
+ava('use error', t => {
+  const errors = []
+  let vut = new Vut()
+
+  try {
+    vut.use({})
+  } catch (e) {
+    errors.push(e.toString())
+  }
+
+  try {
+    vut.use(() => {})
+  } catch (e) {
+    errors.push(e.toString())
   }
   vut.create('ok', {
     data () {
       return {}
     }
   })
+
   try {
-    vut.create('ok', {
-      data () {
-        return {}
-      }
-    })
+    vut.use()
   } catch (e) {
-    errs.push(e.toString())
+    errors.push(e.toString())
   }
-  t.is(JSON.stringify(errs), '["TypeError: Cannot read property \'data\' of undefined","TypeError: Cannot read property \'data\' of null","TypeError: self.data is not a function","TypeError: Cannot convert undefined or null to object"]')
+
+  t.deepEqual(errors, [
+    'Error: [Vut] plugin not is function type',
+    'Error: [Vut] plugin return value not is object type',
+    'Error: [Vut] plugin must in create store before call'
+  ])
+})
+
+ava('my the plugin', t => {
+  const vut = new Vut()
+  const hooks = []
+  vut.use(() => {
+    return {
+      beforeCreate () {
+        hooks.push('beforeCreate-1')
+      },
+      created () {
+        hooks.push('created-1')
+      }
+    }
+  })
+
+  vut.use(() => {
+    return {
+      beforeCreate () {
+        hooks.push('beforeCreate-2')
+      }
+    }
+  })
+
+  vut.create('ok', {
+    data () {
+      return {
+        count: 0
+      }
+    }
+  })
+  t.deepEqual(hooks, [
+    'beforeCreate-1',
+    'beforeCreate-2',
+    'created-1'
+  ])
 })

@@ -150,13 +150,13 @@ var util = {
     return !!obj && Object.prototype.toString.call(obj) === '[object Object]';
   },
   error: function error(msg) {
-    console.error('[Vut] ' + msg);
+    throw new Error('[Vut] ' + msg);
   },
   has: function has(obj, attr) {
     return Object.prototype.hasOwnProperty.call(obj, attr);
   },
-  callHook: function callHook(goods, name) {
-    goods.$plugins.forEach(function (plugin) {
+  callHook: function callHook(vut, goods, name) {
+    vut.plugins.forEach(function (plugin) {
       if (!util.has(plugin, name)) return;
       plugin[name].call(goods);
     });
@@ -180,11 +180,11 @@ var Vut = function () {
       if (typeof plugin !== 'function') {
         util.error('plugin not is function type');
       }
-      var item = plugin(this, options);
-      if (!util.isObject(item)) {
-        util.error('\'' + name + '\' not is object type');
+      var mixin = plugin(this, options);
+      if (!util.isObject(mixin)) {
+        util.error('plugin return value not is object type');
       }
-      this.plugins.push(item);
+      this.plugins.push(mixin);
       return this;
     }
   }, {
@@ -202,40 +202,33 @@ var Vut = function () {
       if (typeof options.data !== 'function') {
         util.error('\'' + name + '\' not is function type');
       }
-      var self = Object.create(null);
-      self.$options = options;
-      var plugins = self.$options.plugins;
-
-      if (Array.isArray(plugins)) {
-        self.$plugins = self.$options.plugins.concat(this.plugins);
-      } else {
-        self.$plugins = [].concat(this.plugins);
-      }
-      util.callHook(self, 'beforeCreate');
+      var goods = Object.create(null);
+      goods.$options = options;
+      util.callHook(this, goods, 'beforeCreate');
       // Bind methods
-      Object.keys(self.$options).forEach(function (fnName) {
-        self[fnName] = function action() {
-          var res = self.$options[fnName].apply(self, arguments);
+      Object.keys(goods.$options).forEach(function (fnName) {
+        goods[fnName] = function action() {
+          var res = goods.$options[fnName].apply(goods, arguments);
           return res;
         };
       });
       // Compression path
-      self.$state = self.data();
-      if (!util.isObject(self.$state)) {
-        util.error('\'' + name + '\' not is object type');
+      goods.$state = goods.data();
+      if (!util.isObject(goods.$state)) {
+        util.error('\'' + name + '\' return value not is object type');
       }
-      Object.keys(self.$state).forEach(function (attrName) {
-        Object.defineProperty(self, attrName, {
+      Object.keys(goods.$state).forEach(function (attrName) {
+        Object.defineProperty(goods, attrName, {
           get: function get$$1() {
-            return self.$state[attrName];
+            return goods.$state[attrName];
           },
           set: function set$$1(val) {
-            self.$state[attrName] = val;
+            goods.$state[attrName] = val;
           }
         });
       });
-      this.store[name] = self;
-      util.callHook(self, 'created');
+      this.store[name] = goods;
+      util.callHook(this, goods, 'created');
       return this;
     }
   }]);

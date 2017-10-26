@@ -8,7 +8,7 @@
     "build": "node build/build",
     "lint": "eslint ./ --ext .vue --ext .js",
     "coverage": "nyc report --reporter=text-lcov | coveralls",
-    "test": "npm run lint && npm run unit && npm run build && npm run coverage",
+    "test": "npm run lint && npm run unit && npm run coverage && npm run build",
     "watch": "npm-watch",
     "watch:app": "npm run test",
     "unit": "nyc ava tests/unit --verbose"
@@ -17,8 +17,8 @@
     "type": "git",
     "url": "git+https://github.com/lzxb/vut.git"
   },
-  "author": "",
-  "license": "ISC",
+  "author": "lzxb",
+  "license": "MIT",
   "bugs": {
     "url": "https://github.com/lzxb/vut/issues"
   },

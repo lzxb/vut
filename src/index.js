@@ -3,13 +3,13 @@ const util = {
     return !!obj && Object.prototype.toString.call(obj) === '[object Object]'
   },
   error (msg) {
-    console.error(`[Vut] ${msg}`)
+    throw new Error(`[Vut] ${msg}`)
   },
   has (obj, attr) {
     return Object.prototype.hasOwnProperty.call(obj, attr)
   },
-  callHook (goods, name) {
-    goods.$plugins.forEach(plugin => {
+  callHook (vut, goods, name) {
+    vut.plugins.forEach(plugin => {
       if (!util.has(plugin, name)) return
       plugin[name].call(goods)
     })
@@ -28,11 +28,11 @@ class Vut {
     if (typeof plugin !== 'function') {
       util.error(`plugin not is function type`)
     }
-    const item = plugin(this, options)
-    if (!util.isObject(item)) {
-      util.error(`'${name}' not is object type`)
+    const mixin = plugin(this, options)
+    if (!util.isObject(mixin)) {
+      util.error(`plugin return value not is object type`)
     }
-    this.plugins.push(item)
+    this.plugins.push(mixin)
     return this
   }
   create (name, options) {
@@ -48,39 +48,33 @@ class Vut {
     if (typeof options.data !== 'function') {
       util.error(`'${name}' not is function type`)
     }
-    const self = Object.create(null)
-    self.$options = options
-    const { plugins } = self.$options
-    if (Array.isArray(plugins)) {
-      self.$plugins = self.$options.plugins.concat(this.plugins)
-    } else {
-      self.$plugins = [].concat(this.plugins)
-    }
-    util.callHook(self, 'beforeCreate')
+    const goods = Object.create(null)
+    goods.$options = options
+    util.callHook(this, goods, 'beforeCreate')
     // Bind methods
-    Object.keys(self.$options).forEach(fnName => {
-      self[fnName] = function action () {
-        const res = self.$options[fnName].apply(self, arguments)
+    Object.keys(goods.$options).forEach(fnName => {
+      goods[fnName] = function action () {
+        const res = goods.$options[fnName].apply(goods, arguments)
         return res
       }
     })
     // Compression path
-    self.$state = self.data()
-    if (!util.isObject(self.$state)) {
-      util.error(`'${name}' not is object type`)
+    goods.$state = goods.data()
+    if (!util.isObject(goods.$state)) {
+      util.error(`'${name}' return value not is object type`)
     }
-    Object.keys(self.$state).forEach(attrName => {
-      Object.defineProperty(self, attrName, {
+    Object.keys(goods.$state).forEach(attrName => {
+      Object.defineProperty(goods, attrName, {
         get () {
-          return self.$state[attrName]
+          return goods.$state[attrName]
         },
         set (val) {
-          self.$state[attrName] = val
+          goods.$state[attrName] = val
         }
       })
     })
-    this.store[name] = self
-    util.callHook(self, 'created')
+    this.store[name] = goods
+    util.callHook(this, goods, 'created')
     return this
   }
 }
