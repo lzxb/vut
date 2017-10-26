@@ -32,6 +32,9 @@ export default function VutVue (context, options) {
           $$state[index] = val
         }
       })
+    },
+    destroyed () {
+      context.destroy()
     }
   }
 }

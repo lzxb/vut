@@ -77,6 +77,16 @@ class Vut {
     util.callHook(this, goods, 'created')
     return this
   }
+  destroy () {
+    Object.keys(this.store).forEach(goods => {
+      util.callHook(this, this.store[goods], 'beforeDestroy')
+      util.callHook(this, this.store[goods], 'destroyed')
+    })
+  }
 }
+
+Object.assign(Vut, {
+  util
+})
 
 export default Vut

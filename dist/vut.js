@@ -231,9 +231,23 @@ var Vut = function () {
       util.callHook(this, goods, 'created');
       return this;
     }
+  }, {
+    key: 'destroy',
+    value: function destroy() {
+      var _this = this;
+
+      Object.keys(this.store).forEach(function (goods) {
+        util.callHook(_this, _this.store[goods], 'beforeDestroy');
+        util.callHook(_this, _this.store[goods], 'destroyed');
+      });
+    }
   }]);
   return Vut;
 }();
+
+Object.assign(Vut, {
+  util: util
+});
 
 return Vut;
 

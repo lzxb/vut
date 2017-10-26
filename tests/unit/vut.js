@@ -127,14 +127,51 @@ ava('my the plugin', t => {
 
   vut.create('ok', {
     data () {
-      return {
-        count: 0
-      }
+      return {}
     }
   })
   t.deepEqual(hooks, [
     'beforeCreate-1',
     'beforeCreate-2',
     'created-1'
+  ])
+})
+
+ava('destroy', t => {
+  const hooks = []
+  const vut = new Vut()
+  vut.use(context => {
+    return {
+      beforeCreate () {
+        hooks.push('beforeCreate')
+      },
+      created () {
+        hooks.push('created')
+      },
+      beforeDestroy () {
+        hooks.push('beforeDestroy')
+      },
+      destroyed () {
+        hooks.push('destroyed')
+      }
+    }
+  })
+
+  vut.create('ok', {
+    data () {
+      return {}
+    }
+  })
+
+  t.deepEqual(hooks, [
+    'beforeCreate',
+    'created'
+  ])
+  vut.destroy()
+  t.deepEqual(hooks, [
+    'beforeCreate',
+    'created',
+    'beforeDestroy',
+    'destroyed'
   ])
 })
