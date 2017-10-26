@@ -3,7 +3,6 @@ node_js: "stable"
 
 env:
   global:
-    - CI_NAME=travis-pro
     - SERVICE_NAME=travis-pro
     - COVERALLS_REPO_TOKEN=9cdJAJEmw2GLKBfbnciQTu90nm1LiSHnt
 
