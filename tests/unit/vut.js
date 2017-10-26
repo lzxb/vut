@@ -19,4 +19,7 @@ ava('base', t => {
   t.deepEqual(vut.store.census.arr, [])
   t.deepEqual(vut.store.census.$state.arr, [])
   t.is(vut.store.census.arr, vut.store.census.$state.arr)
+  vut.store.census.plus()
+  t.is(vut.store.census.count, 1)
+  t.is(vut.store.census.$state.count, 1)
 })
