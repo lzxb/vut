@@ -7,9 +7,10 @@
     "dev": "node examples/server",
     "build": "node build/build",
     "lint": "eslint ./ --ext .vue --ext .js",
-    "test": "npm init",
+    "coverage": "nyc report --reporter=text-lcov | coveralls",
+    "test": "npm run lint && npm run unit && npm run build && npm run coverage",
     "watch": "npm-watch",
-    "watch:app": "npm run lint && npm run build",
+    "watch:app": "npm run test",
     "unit": "nyc ava tests/unit --verbose"
   },
   "repository": {
@@ -32,6 +33,8 @@
     "babel-preset-react": "^6.24.1",
     "babel-preset-stage-0": "^6.24.1",
     "babel-register": "^6.26.0",
+    "coveralls": "^3.0.0",
+    "css-loader": "^0.28.7",
     "eslint": "^4.9.0",
     "eslint-config-standard": "^10.2.1",
     "eslint-config-standard-react": "^5.0.0",
@@ -73,5 +76,6 @@
       ],
       "extensions": "js,html,vue"
     }
-  }
+  },
+  "dependencies": {}
 }
