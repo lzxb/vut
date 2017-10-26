@@ -2,6 +2,7 @@ language: node_js
 node_js: "stable"
 
 after_success:
+  - set COVERALLS_REPO_TOKEN=9cdJAJEmw2GLKBfbnciQTu90nm1LiSHnt
   - npm run coverage
 
 before_install:
