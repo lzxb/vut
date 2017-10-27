@@ -13,11 +13,10 @@ const install = (Vue) => {
     }
   })
 }
-export default function VutVue (context, options) {
+export default function vutVue (context, options) {
   install(options.Vue)
   let $$state = []
-  /* eslint-disable no-new */
-  new _Vue({
+  context.$vue new _Vue({
     data: { $$state }
   })
   return {

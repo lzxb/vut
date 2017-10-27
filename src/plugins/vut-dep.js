@@ -3,6 +3,9 @@ class Dep {
     this.subs = []
   }
   addSub (fn) {
+    if (typeof fn !== 'function') {
+      throw new Error(`[vut-dep] addSub(fn: Function) not is function type`)
+    }
     this.subs.push(fn)
   }
   removeSub (fn) {
@@ -13,7 +16,7 @@ class Dep {
   }
 }
 
-export default function VutDep (context, options) {
+export default function vutDep (context, options) {
   context.$dep = new Dep()
   return {
     beforeCreate () {

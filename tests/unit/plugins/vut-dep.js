@@ -2,7 +2,7 @@ import ava from 'ava'
 import Vut from '../../../src/index'
 import vutDep from '../../../src/plugins/vut-dep'
 
-ava('test', t => {
+ava('base', t => {
   const vut = new Vut()
   vut.use(vutDep)
   vut.create('ok', {
@@ -21,4 +21,18 @@ ava('test', t => {
   t.is(count, 1)
   vut.$dep.removeSub(sub)
   t.deepEqual(vut.$dep.subs, [])
+})
+
+ava('error', t => {
+  const errors = []
+  const vut = new Vut()
+  vut.use(vutDep)
+  try {
+    vut.$dep.addSub(null)
+  } catch (e) {
+    errors.push(e.toString())
+  }
+  t.deepEqual(errors, [
+    'Error: [vut-dep] addSub(fn: Function) not is function type'
+  ])
 })
