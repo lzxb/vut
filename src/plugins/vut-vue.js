@@ -16,7 +16,7 @@ const install = (Vue) => {
 export default function vutVue (context, options) {
   install(options.Vue)
   let $$state = []
-  context.$vue new _Vue({
+  context.$vue = new _Vue({
     data: { $$state }
   })
   return {
