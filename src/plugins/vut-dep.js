@@ -6,9 +6,7 @@ class Dep {
     this.subs.push(fn)
   }
   removeSub (fn) {
-    this.subs.filter((item) => {
-      return item !== fn
-    })
+    this.subs = this.subs.filter((item) => item !== fn)
   }
   notify () {
     this.subs.forEach(fn => fn())

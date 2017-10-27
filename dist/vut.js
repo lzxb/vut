@@ -4,6 +4,24 @@
 	(global.Vut = factory());
 }(this, (function () { 'use strict';
 
+var util = {
+  isObject: function isObject(obj) {
+    return !!obj && Object.prototype.toString.call(obj) === '[object Object]';
+  },
+  error: function error(msg) {
+    throw new Error('[Vut] ' + msg);
+  },
+  has: function has(obj, attr) {
+    return Object.prototype.hasOwnProperty.call(obj, attr);
+  },
+  callHook: function callHook(vut, goods, name) {
+    vut.plugins.forEach(function (plugin) {
+      if (!util.has(plugin, name)) return;
+      plugin[name].call(goods);
+    });
+  }
+};
+
 var asyncGenerator = function () {
   function AwaitValue(value) {
     this.value = value;
@@ -145,25 +163,7 @@ var createClass = function () {
   };
 }();
 
-var util = {
-  isObject: function isObject(obj) {
-    return !!obj && Object.prototype.toString.call(obj) === '[object Object]';
-  },
-  error: function error(msg) {
-    throw new Error('[Vut] ' + msg);
-  },
-  has: function has(obj, attr) {
-    return Object.prototype.hasOwnProperty.call(obj, attr);
-  },
-  callHook: function callHook(vut, goods, name) {
-    vut.plugins.forEach(function (plugin) {
-      if (!util.has(plugin, name)) return;
-      plugin[name].call(goods);
-    });
-  }
-};
-
-var Vut = function () {
+var Vut$1 = function () {
   function Vut() {
     classCallCheck(this, Vut);
 
@@ -245,10 +245,10 @@ var Vut = function () {
   return Vut;
 }();
 
-Object.assign(Vut, {
+Object.assign(Vut$1, {
   util: util
 });
 
-return Vut;
+return Vut$1;
 
 })));

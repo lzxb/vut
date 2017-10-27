@@ -1,13 +1,13 @@
 import Vue from 'vue'
 import Vut from 'vut'
-import VutDep from 'vut-dep'
-import VutVue from 'vut-vue'
+import vutDep from 'vut-dep'
+import vutVue from 'vut-vue'
 
 const vut = new Vut()
 
 vut
-  .use(VutDep)
-  .use(VutVue, { Vue })
+  .use(vutDep)
+  .use(vutVue, { Vue })
 
 vut.create('census', {
   data () {
