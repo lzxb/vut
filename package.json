@@ -1,6 +1,6 @@
 {
   "name": "vut",
-  "version": "0.0.1-base",
+  "version": "0.0.1-rc",
   "description": "轻量级的业务集中管理框架",
   "main": "index.js",
   "scripts": {
