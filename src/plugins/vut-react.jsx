@@ -16,7 +16,7 @@ export const connect = (Component, mapModules) => {
     render () {
       return <Component {...this.props} {...this.state} />
     }
-    componentDidMount () {
+    componentWillUnmount () {
       this.context.vut.$dep.removeSub(this.onChange)
     }
   }

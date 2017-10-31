@@ -37,7 +37,8 @@ const build = async (opts) => {
     name: 'Vut',
     format: 'umd',
     ...opts,
-    file: `dist/${opts.file}`
+    file: `dist/${opts.file}`,
+    sourcemap: true
   })
 }
 
