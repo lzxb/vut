@@ -16,17 +16,15 @@ class Dep {
   }
 }
 
-export default function vutDep (options) {
-  return {
-    instance: {
-      beforeCreate () {
-        this.$dep = new Dep()
-      }
-    },
-    module: {
-      beforeCreate () {
-        this.$dep = this.$context.$dep
-      }
+export default {
+  instance: {
+    beforeCreate () {
+      this.$dep = new Dep()
+    }
+  },
+  module: {
+    beforeCreate () {
+      this.$dep = this.$context.$dep
     }
   }
 }

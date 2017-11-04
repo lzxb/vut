@@ -7,8 +7,8 @@ Vue
   .use(vutVue)
 
 Vut
-  .use(vutDep())
-  .use(vutVue({ Vue }))
+  .use(vutDep)
+  .use(vutVue)
 
 const vut = new Vut()
 
