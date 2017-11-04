@@ -7,7 +7,7 @@
     "dev": "node examples/server",
     "build": "node build/build",
     "lint": "eslint ./ --ext .vue --ext .js",
-    "coverage": "nyc report --reporter=text-lcov | coveralls",
+    "coverage": "nyc report --reporter=text-lcov --reporter=html | coveralls",
     "test": "npm run lint && npm run unit && npm run coverage && npm run build",
     "watch": "npm-watch",
     "watch:app": "npm run test",

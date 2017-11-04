@@ -7,7 +7,6 @@ const util = {
 }
 
 const install = (Vue) => {
-  if (_Vue) return
   _Vue = Vue
   Object.defineProperty(_Vue.prototype, '$vut', {
     get () { return this.$root._vut }
@@ -31,20 +30,22 @@ export default {
       })
     },
     destroyed () {
-      this.$vue.destroy()
+      this.$vue.$data.$$state = []
+      this.$vue.$destroy()
+      delete this.$vue
     }
   },
   module: {
     created () {
-      const state = this.$context.$vue.$data.$$state
-      state.push(this.$state)
-      const index = state.length - 1
+      const data = this.$context.$vue.$data
+      data.$$state.push(this.$state)
+      const index = data.$$state.length - 1
       Object.defineProperty(this, '$state', {
         get () {
-          return state[index]
+          return data.$$state[index]
         },
         set (val) {
-          state[index] = val
+          data.$$state[index] = val
         }
       })
     }

@@ -42,9 +42,20 @@ ava.serial('base', t => {
   t.deepEqual({ name: 'LZXB' }, vut.getState('user'))
   t.deepEqual({ list: [1] }, vut.getState('user/order'))
 
+  vut.$vue.$data.$$state = [{ list: [1, 2] }, { name: 'vue-lzxb' }]
+  t.deepEqual({ name: 'vue-lzxb' }, vut.getState('user'))
+  t.deepEqual({ list: [1, 2] }, vut.getState('user/order'))
+
+  vut.getModule('user').$state = { name: 'set-ok' }
+  vut.getModule('user/order').$state = { list: [1, 2, 3] }
+  t.deepEqual({ name: 'set-ok' }, vut.getState('user'))
+  t.deepEqual({ list: [1, 2, 3] }, vut.getState('user/order'))
+
   const vm = new Vue({
     vut
   })
   t.is(vm._vut, vm.$vut)
   t.is(vm.$vut, vut)
+  vut.destroy()
+  t.false('$vut' in vut)
 })
