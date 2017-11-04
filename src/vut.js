@@ -30,6 +30,7 @@ class Vut {
     }
     const goods = Object.create(null)
     goods.$options = moduleOptions
+    goods.$context = this
     util.callModuleHook(this, goods, 'beforeCreate')
 
     // Bind action
@@ -51,7 +52,6 @@ class Vut {
     util.pathCompression(goods, goods.$actions)
     util.pathCompression(goods, goods.$state)
 
-    goods.$context = this
     this.modules[path] = goods
     util.callModuleHook(this, goods, 'created')
     return this

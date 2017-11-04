@@ -3,12 +3,14 @@ import Vut from 'vut'
 import vutDep from 'vut-dep'
 import vutVue from 'vut-vue'
 
+Vue
+  .use(vutVue)
+
 Vut
   .use(vutDep())
   .use(vutVue({ Vue }))
 
 const vut = new Vut()
-
 
 vut.addModules('census', {
   data () {

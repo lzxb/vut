@@ -14,10 +14,49 @@ var util = {
   has: function has(obj, attr) {
     return Object.prototype.hasOwnProperty.call(obj, attr);
   },
-  callHook: function callHook(vut, goods, name) {
-    vut.plugins.forEach(function (plugin) {
-      if (!util.has(plugin, name)) return;
-      plugin[name].call(goods);
+  pathCompression: function pathCompression(obj, options) {
+    Object.keys(options).forEach(function (k) {
+      Object.defineProperty(obj, k, {
+        get: function get() {
+          return options[k];
+        },
+        set: function set(val) {
+          options[k] = val;
+        }
+      });
+    });
+  },
+  getModule: function getModule(vut, paths, fn) {
+    if (typeof paths === 'string') {
+      return fn(vut.modules[paths]);
+    } else if (util.isObject(paths)) {
+      var data = {};
+      Object.keys(paths).forEach(function (name) {
+        data[name] = fn(vut.modules[paths[name]]);
+      });
+      return data;
+    }
+  },
+  callModuleHook: function callModuleHook(vut, goods, name) {
+    var mixins = Vut$1.options.plugins.filter(function (plugin) {
+      return util.isObject(plugin.module);
+    }).map(function (plugin) {
+      return plugin.module;
+    });
+    mixins.forEach(function (mixin) {
+      if (!util.has(mixin, name)) return;
+      mixin[name].call(goods);
+    });
+  },
+  callInstanceHook: function callInstanceHook(vut, name) {
+    var mixins = Vut$1.options.plugins.filter(function (plugin) {
+      return util.isObject(plugin.instance);
+    }).map(function (plugin) {
+      return plugin.instance;
+    });
+    mixins.forEach(function (mixin) {
+      if (!util.has(mixin, name)) return;
+      mixin[name].call(vut);
     });
   }
 };
@@ -163,90 +202,115 @@ var createClass = function () {
   };
 }();
 
+var newId = 0;
+
 var Vut$1 = function () {
-  function Vut() {
+  function Vut(options) {
     classCallCheck(this, Vut);
 
-    this.store = {};
+    newId++;
+    this.modules = {};
     this.plugins = [];
+    util.callInstanceHook(this, 'beforeCreate');
+    util.callInstanceHook(this, 'created');
   }
 
   createClass(Vut, [{
-    key: 'use',
-    value: function use(plugin, options) {
-      if (Object.keys(this.store).length) {
-        util.error('plugin must in create store before call');
+    key: 'addModules',
+    value: function addModules(path, moduleOptions) {
+      var _this = this;
+
+      if (typeof path !== 'string') {
+        util.error(path + ' \'path\' not is string type');
       }
-      if (typeof plugin !== 'function') {
-        util.error('plugin not is function type');
+      if (!util.isObject(moduleOptions)) {
+        util.error(path + ' \'options\' not is object type');
       }
-      var mixin = plugin(this, options);
-      if (!util.isObject(mixin)) {
-        util.error('plugin return value not is object type');
+      if (util.isObject(moduleOptions.modules)) {
+        Object.keys(moduleOptions.modules).forEach(function (k) {
+          _this.addModules(path + '/' + k, moduleOptions.modules[k]);
+        });
       }
-      this.plugins.push(mixin);
+      if (util.has(this.modules, path)) {
+        util.error('\'' + path + '\' already is in module');
+      }
+      if (typeof moduleOptions.data !== 'function') {
+        util.error('\'' + path + '\' not is function type');
+      }
+      var goods = Object.create(null);
+      goods.$options = moduleOptions;
+      goods.$context = this;
+      util.callModuleHook(this, goods, 'beforeCreate');
+
+      // Bind action
+      goods.$actions = {};
+      Object.keys(goods.$options).forEach(function (fnName) {
+        if (typeof goods.$options[fnName] !== 'function') return;
+        goods.$actions[fnName] = function action() {
+          return goods.$options[fnName].apply(goods, arguments);
+        };
+      });
+
+      // Bind state
+      goods.$state = goods.$actions.data();
+      if (!util.isObject(goods.$state)) {
+        util.error('\'vut.getAction(' + path + ').data()\' return value not is object type');
+      }
+
+      // Path compression
+      util.pathCompression(goods, goods.$actions);
+      util.pathCompression(goods, goods.$state);
+
+      this.modules[path] = goods;
+      util.callModuleHook(this, goods, 'created');
       return this;
     }
   }, {
-    key: 'create',
-    value: function create(name, options) {
-      if (typeof name !== 'string') {
-        util.error('\'name\' not is string type');
-      }
-      if (!util.isObject(options)) {
-        util.error('\'options\' not is object type');
-      }
-      if (util.has(this.store, name)) {
-        util.error('\'' + name + '\' already is in store');
-      }
-      if (typeof options.data !== 'function') {
-        util.error('\'' + name + '\' not is function type');
-      }
-      var goods = Object.create(null);
-      goods.$options = options;
-      util.callHook(this, goods, 'beforeCreate');
-      // Bind methods
-      Object.keys(goods.$options).forEach(function (fnName) {
-        goods[fnName] = function action() {
-          var res = goods.$options[fnName].apply(goods, arguments);
-          return res;
-        };
+    key: 'getModule',
+    value: function getModule(paths) {
+      return util.getModule(this, paths, function (goods) {
+        return goods;
       });
-      // Compression path
-      goods.$state = goods.data();
-      if (!util.isObject(goods.$state)) {
-        util.error('\'' + name + '\' return value not is object type');
-      }
-      Object.keys(goods.$state).forEach(function (attrName) {
-        Object.defineProperty(goods, attrName, {
-          get: function get$$1() {
-            return goods.$state[attrName];
-          },
-          set: function set$$1(val) {
-            goods.$state[attrName] = val;
-          }
-        });
+    }
+  }, {
+    key: 'getState',
+    value: function getState(paths) {
+      return util.getModule(this, paths, function (goods) {
+        return goods.$state;
       });
-      this.store[name] = goods;
-      util.callHook(this, goods, 'created');
-      return this;
+    }
+  }, {
+    key: 'getActions',
+    value: function getActions(paths) {
+      return util.getModule(this, paths, function (goods) {
+        return goods.$actions;
+      });
     }
   }, {
     key: 'destroy',
     value: function destroy() {
-      var _this = this;
-
-      Object.keys(this.store).forEach(function (goods) {
-        util.callHook(_this, _this.store[goods], 'beforeDestroy');
-        util.callHook(_this, _this.store[goods], 'destroyed');
-      });
-      return this;
+      util.callInstanceHook(this, 'beforeDestroy');
+      util.callInstanceHook(this, 'destroyed');
     }
   }]);
   return Vut;
 }();
 
 Object.assign(Vut$1, {
+  options: {
+    plugins: []
+  },
+  use: function use(plugin) {
+    if (!util.isObject(plugin)) {
+      util.error('plugin not is object type');
+    }
+    if (newId) {
+      return util.error('\'Vut.use(plugin)\' must in \'new Vut()\' before');
+    }
+    this.options.plugins.push(plugin);
+    return this;
+  },
+
   util: util
 });
 
