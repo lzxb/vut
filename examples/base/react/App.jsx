@@ -15,6 +15,6 @@ class App extends React.Component {
   }
 }
 
-export default connect(App, (store) => {
-  return { census: store.census }
+export default connect(App, (vut) => {
+  return vut.getModule({ census: 'census' })
 })

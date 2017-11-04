@@ -6,10 +6,10 @@ export const connect = (Component, mapModules) => {
     static contextTypes = {
       vut: PropTypes.object.isRequired
     }
-    state = mapModules(this.context.vut.store)
+    state = mapModules(this.context.vut)
     componentWillMount () {
       this.onChange = () => {
-        this.setState(mapModules(this.context.vut.store))
+        this.setState(mapModules(this.context.vut))
       }
       this.context.vut.$dep.addSub(this.onChange)
     }

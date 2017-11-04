@@ -2,15 +2,15 @@ import ava from 'ava'
 import Vut from '../../../src/index'
 import vutDep from '../../../src/plugins/vut-dep'
 
+Vut.use(vutDep())
 ava('base', t => {
   const vut = new Vut()
-  vut.use(vutDep)
-  vut.create('ok', {
+  vut.addModules('ok', {
     data () {
       return {}
     }
   })
-  t.is(vut.$dep, vut.store.ok.$dep)
+  t.is(vut.$dep, vut.getModule('ok').$dep)
   let count = 0
   const sub = () => {
     count++
@@ -26,7 +26,6 @@ ava('base', t => {
 ava('error', t => {
   const errors = []
   const vut = new Vut()
-  vut.use(vutDep)
   try {
     vut.$dep.addSub(null)
   } catch (e) {

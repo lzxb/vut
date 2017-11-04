@@ -240,6 +240,7 @@ var Vut$1 = function () {
         util.callHook(_this, _this.store[goods], 'beforeDestroy');
         util.callHook(_this, _this.store[goods], 'destroyed');
       });
+      return this;
     }
   }]);
   return Vut;

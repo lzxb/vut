@@ -10,7 +10,7 @@
   export default {
     computed: {
       census () {
-        return this.$vut.store.census
+        return this.$vut.getModule('census')
       }
     }
   }

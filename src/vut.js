@@ -1,75 +1,90 @@
 import util from './util'
 
+let newId = 0
+
 class Vut {
-  constructor () {
-    this.store = {}
+  constructor (options) {
+    newId++
+    this.modules = {}
     this.plugins = []
+    util.callInstanceHook(this, 'beforeCreate')
+    util.callInstanceHook(this, 'created')
   }
-  use (plugin, options) {
-    if (Object.keys(this.store).length) {
-      util.error(`plugin must in create store before call`)
+  addModules (path, moduleOptions) {
+    if (typeof path !== 'string') {
+      util.error(`${path} 'path' not is string type`)
     }
-    if (typeof plugin !== 'function') {
-      util.error(`plugin not is function type`)
+    if (!util.isObject(moduleOptions)) {
+      util.error(`${path} 'options' not is object type`)
     }
-    const mixin = plugin(this, options)
-    if (!util.isObject(mixin)) {
-      util.error(`plugin return value not is object type`)
+    if (util.isObject(moduleOptions.modules)) {
+      Object.keys(moduleOptions.modules).forEach(k => {
+        this.addModules(`${path}/${k}`, moduleOptions.modules[k])
+      })
     }
-    this.plugins.push(mixin)
-    return this
-  }
-  create (name, options) {
-    if (typeof name !== 'string') {
-      util.error(`'name' not is string type`)
+    if (util.has(this.modules, path)) {
+      util.error(`'${path}' already is in module`)
     }
-    if (!util.isObject(options)) {
-      util.error(`'options' not is object type`)
-    }
-    if (util.has(this.store, name)) {
-      util.error(`'${name}' already is in store`)
-    }
-    if (typeof options.data !== 'function') {
-      util.error(`'${name}' not is function type`)
+    if (typeof moduleOptions.data !== 'function') {
+      util.error(`'${path}' not is function type`)
     }
     const goods = Object.create(null)
-    goods.$options = options
-    util.callHook(this, goods, 'beforeCreate')
-    // Bind methods
+    goods.$options = moduleOptions
+    util.callModuleHook(this, goods, 'beforeCreate')
+
+    // Bind action
+    goods.$actions = {}
     Object.keys(goods.$options).forEach(fnName => {
-      goods[fnName] = function action () {
-        const res = goods.$options[fnName].apply(goods, arguments)
-        return res
+      if (typeof goods.$options[fnName] !== 'function') return
+      goods.$actions[fnName] = function action () {
+        return goods.$options[fnName].apply(goods, arguments)
       }
     })
-    // Compression path
-    goods.$state = goods.data()
+
+    // Bind state
+    goods.$state = goods.$actions.data()
     if (!util.isObject(goods.$state)) {
-      util.error(`'${name}' return value not is object type`)
+      util.error(`'vut.getAction(${path}).data()' return value not is object type`)
     }
-    Object.keys(goods.$state).forEach(attrName => {
-      Object.defineProperty(goods, attrName, {
-        get () {
-          return goods.$state[attrName]
-        },
-        set (val) {
-          goods.$state[attrName] = val
-        }
-      })
-    })
-    this.store[name] = goods
-    util.callHook(this, goods, 'created')
+
+    // Path compression
+    util.pathCompression(goods, goods.$actions)
+    util.pathCompression(goods, goods.$state)
+
+    goods.$context = this
+    this.modules[path] = goods
+    util.callModuleHook(this, goods, 'created')
     return this
   }
+  getModule (paths) {
+    return util.getModule(this, paths, goods => goods)
+  }
+  getState (paths) {
+    return util.getModule(this, paths, goods => goods.$state)
+  }
+  getActions (paths) {
+    return util.getModule(this, paths, goods => goods.$actions)
+  }
   destroy () {
-    Object.keys(this.store).forEach(goods => {
-      util.callHook(this, this.store[goods], 'beforeDestroy')
-      util.callHook(this, this.store[goods], 'destroyed')
-    })
+    util.callInstanceHook(this, 'beforeDestroy')
+    util.callInstanceHook(this, 'destroyed')
   }
 }
 
 Object.assign(Vut, {
+  options: {
+    plugins: []
+  },
+  use (plugin) {
+    if (!util.isObject(plugin)) {
+      util.error(`plugin not is object type`)
+    }
+    if (newId) {
+      return util.error(`'Vut.use(plugin)' must in 'new Vut()' before`)
+    }
+    this.options.plugins.push(plugin)
+    return this
+  },
   util
 })
 
