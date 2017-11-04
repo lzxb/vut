@@ -12,7 +12,10 @@ class Vut {
   }
   addModules (path, moduleOptions) {
     if (typeof path !== 'string') {
-      util.error(`${path} 'path' not is string type`)
+      util.error(`'path=${path}' not is string type`)
+    }
+    if (!path) {
+      util.error(`'path' not is null string`)
     }
     if (!util.isObject(moduleOptions)) {
       util.error(`${path} 'options' not is object type`)
@@ -73,6 +76,7 @@ class Vut {
       util.callModuleHook(this, goods, 'destroyed')
     })
     util.callInstanceHook(this, 'destroyed')
+    return this
   }
 }
 
@@ -89,8 +93,7 @@ Object.assign(Vut, {
     }
     this.options.plugins.push(plugin)
     return this
-  },
-  util
+  }
 })
 
 export default Vut

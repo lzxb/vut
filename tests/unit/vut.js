@@ -1,8 +1,31 @@
 import ava from 'ava'
 import Vut from '../../src/index'
 
+const USER = {
+  data () {
+    return {
+      name: 'lzxb'
+    }
+  },
+  updateName (name) {
+    this.name = name
+  },
+  modules: {
+    order: {
+      data () {
+        return {
+          list: []
+        }
+      },
+      plus () {
+        this.list.push(this.list.length + 1)
+      }
+    }
+  }
+}
+
 ava('new a instance', t => {
-  Vut.use({
+  const logPlugin = {
     instance: {
       beforeCreate () {
         this.$logs = [{ name: 'instance.beforeCreate', self: this }]
@@ -32,30 +55,11 @@ ava('new a instance', t => {
         this.$logs.push({ name: 'module.destroyed', self: this })
       }
     }
-  })
+  }
+  Vut.use(logPlugin)
+  t.deepEqual(Vut.options.plugins, [logPlugin])
   const store = new Vut()
-  store.addModules('user', {
-    data () {
-      return {
-        name: 'lzxb'
-      }
-    },
-    updateName (name) {
-      this.name = name
-    },
-    modules: {
-      order: {
-        data () {
-          return {
-            list: []
-          }
-        },
-        plus () {
-          this.list.push(this.list.length + 1)
-        }
-      }
-    }
-  })
+  store.addModules('user', USER)
 
   t.true('user' in store.modules)
   t.true('user/order' in store.modules)
@@ -124,4 +128,97 @@ ava('new a instance', t => {
       self: store
     }
   ], store.$logs)
+})
+
+ava('check errors', t => {
+  const store = new Vut()
+  const logs = []
+
+  try {
+    store.addModules(null)
+  } catch (e) {
+    logs.push(e.toString())
+  }
+
+  try {
+    store.addModules('')
+  } catch (e) {
+    logs.push(e.toString())
+  }
+
+  try {
+    store.addModules('user', null)
+  } catch (e) {
+    logs.push(e.toString())
+  }
+
+  try {
+    store.addModules('user', {
+      data: null
+    })
+  } catch (e) {
+    logs.push(e.toString())
+  }
+
+  try {
+    store.addModules('user', {
+      data () {}
+    })
+  } catch (e) {
+    logs.push(e.toString())
+  }
+
+  try {
+    store
+      .addModules('user', {
+        data () {
+          return {}
+        }
+      })
+      .addModules('user', {
+        data () {
+          return {}
+        }
+      })
+  } catch (e) {
+    logs.push(e.toString())
+  }
+
+  try {
+    Vut.use({})
+  } catch (e) {
+    logs.push(e.toString())
+  }
+
+  t.deepEqual([
+    'Error: [Vut] \'path=null\' not is string type',
+    'Error: [Vut] \'path\' not is null string',
+    'Error: [Vut] user \'options\' not is object type',
+    'Error: [Vut] \'user\' not is function type',
+    'Error: [Vut] \'vut.getAction(user).data()\' return value not is object type',
+    'Error: [Vut] \'user\' already is in module',
+    'Error: [Vut] \'Vut.use(plugin)\' must in \'new Vut()\' before'
+  ], logs)
+})
+
+ava('function return value', t => {
+  const store = new Vut()
+  t.is(store, store.addModules('user', USER))
+
+  t.is(store.modules['user'], store.getModule('user'))
+  t.deepEqual({ user: store.modules['user'] }, store.getModule({ user: 'user' }))
+  t.is(store.modules['user/order'], store.getModule('user/order'))
+  t.deepEqual({ user: store.modules['user/order'] }, store.getModule({ user: 'user/order' }))
+
+  t.is(store.modules['user'].$state, store.getState('user'))
+  t.deepEqual({ user: store.modules['user'].$state }, store.getState({ user: 'user' }))
+  t.is(store.modules['user/order'].$state, store.getState('user/order'))
+  t.deepEqual({ user: store.modules['user/order'].$state }, store.getState({ user: 'user/order' }))
+
+  t.is(store.modules['user'].$actions, store.getActions('user'))
+  t.deepEqual({ user: store.modules['user'].$actions }, store.getActions({ user: 'user' }))
+  t.is(store.modules['user/order'].$actions, store.getActions('user/order'))
+  t.deepEqual({ user: store.modules['user/order'].$actions }, store.getActions({ user: 'user/order' }))
+
+  t.is(store, store.destroy())
 })

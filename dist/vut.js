@@ -221,7 +221,10 @@ var Vut$1 = function () {
       var _this = this;
 
       if (typeof path !== 'string') {
-        util.error(path + ' \'path\' not is string type');
+        util.error('\'path=' + path + '\' not is string type');
+      }
+      if (!path) {
+        util.error('\'path\' not is null string');
       }
       if (!util.isObject(moduleOptions)) {
         util.error(path + ' \'options\' not is object type');
@@ -298,6 +301,7 @@ var Vut$1 = function () {
         util.callModuleHook(_this2, goods, 'destroyed');
       });
       util.callInstanceHook(this, 'destroyed');
+      return this;
     }
   }]);
   return Vut;
@@ -316,9 +320,7 @@ Object.assign(Vut$1, {
     }
     this.options.plugins.push(plugin);
     return this;
-  },
-
-  util: util
+  }
 });
 
 return Vut$1;
