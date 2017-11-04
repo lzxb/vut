@@ -5,7 +5,7 @@ const util = {
     return !!obj && Object.prototype.toString.call(obj) === '[object Object]'
   },
   error (msg) {
-    throw new Error(`[Vut] ${msg}`)
+    throw new Error(`[vut] ${msg}`)
   },
   has (obj, attr) {
     return Object.prototype.hasOwnProperty.call(obj, attr)
@@ -24,15 +24,21 @@ const util = {
   },
   getModule (vut, paths, fn) {
     if (typeof paths === 'string') {
+      if (!util.has(vut.modules, paths)) {
+        util.error(`Module '${paths}' does not exist`)
+      }
       return fn(vut.modules[paths])
     } else if (util.isObject(paths)) {
       const data = {}
       Object.keys(paths).forEach(name => {
+        if (!util.has(vut.modules, name)) {
+          util.error(`Module '${paths[name]}' does not exist`)
+        }
         data[name] = fn(vut.modules[paths[name]])
       })
       return data
     }
-    util.error(`The parameter is illegal. Please use 'store.getModule(path: string)' or 'store.getModule({ [path: string]: string })'`)
+    util.error(`The parameter is illegal. Please use 'vut.getModule(path: string)' or 'vut.getModule({ [path: string]: string })'`)
   },
   callModuleHook (vut, goods, name) {
     const mixins = Vut

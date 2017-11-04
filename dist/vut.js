@@ -9,7 +9,7 @@ var util = {
     return !!obj && Object.prototype.toString.call(obj) === '[object Object]';
   },
   error: function error(msg) {
-    throw new Error('[Vut] ' + msg);
+    throw new Error('[vut] ' + msg);
   },
   has: function has(obj, attr) {
     return Object.prototype.hasOwnProperty.call(obj, attr);
@@ -28,15 +28,21 @@ var util = {
   },
   getModule: function getModule(vut, paths, fn) {
     if (typeof paths === 'string') {
+      if (!util.has(vut.modules, paths)) {
+        util.error('Module \'' + paths + '\' does not exist');
+      }
       return fn(vut.modules[paths]);
     } else if (util.isObject(paths)) {
       var data = {};
       Object.keys(paths).forEach(function (name) {
+        if (!util.has(vut.modules, name)) {
+          util.error('Module \'' + paths[name] + '\' does not exist');
+        }
         data[name] = fn(vut.modules[paths[name]]);
       });
       return data;
     }
-    util.error('The parameter is illegal. Please use \'store.getModule(path: string)\' or \'store.getModule({ [path: string]: string })\'');
+    util.error('The parameter is illegal. Please use \'vut.getModule(path: string)\' or \'vut.getModule({ [path: string]: string })\'');
   },
   callModuleHook: function callModuleHook(vut, goods, name) {
     var mixins = Vut$1.options.plugins.filter(function (plugin) {
@@ -209,11 +215,11 @@ var Vut$1 = function () {
   function Vut(options) {
     classCallCheck(this, Vut);
 
-    isUse = true;
     this.modules = {};
     this.plugins = [];
     util.callInstanceHook(this, 'beforeCreate');
     util.callInstanceHook(this, 'created');
+    isUse = true;
   }
 
   createClass(Vut, [{
@@ -258,7 +264,7 @@ var Vut$1 = function () {
       // Bind state
       goods.$state = goods.$actions.data();
       if (!util.isObject(goods.$state)) {
-        util.error('\'store.getAction(' + path + ').data()\' return value not is object type');
+        util.error('\'vut.getAction(' + path + ').data()\' return value not is object type');
       }
 
       // Path compression

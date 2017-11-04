@@ -4,11 +4,11 @@ let isUse = false
 
 class Vut {
   constructor (options) {
-    isUse = true
     this.modules = {}
     this.plugins = []
     util.callInstanceHook(this, 'beforeCreate')
     util.callInstanceHook(this, 'created')
+    isUse = true
   }
   addModules (path, moduleOptions) {
     if (typeof path !== 'string') {
@@ -48,7 +48,7 @@ class Vut {
     // Bind state
     goods.$state = goods.$actions.data()
     if (!util.isObject(goods.$state)) {
-      util.error(`'store.getAction(${path}).data()' return value not is object type`)
+      util.error(`'vut.getAction(${path}).data()' return value not is object type`)
     }
 
     // Path compression
