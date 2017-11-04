@@ -2,7 +2,7 @@ import ava from 'ava'
 import Vut from '../../../src/index'
 import vutDep from '../../../src/plugins/vut-dep'
 
-Vut.use(vutDep())
+Vut.use(vutDep)
 ava('base', t => {
   const vut = new Vut()
   vut.addModules('ok', {

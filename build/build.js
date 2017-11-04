@@ -4,6 +4,7 @@ const uglify = require('rollup-plugin-uglify')
 const { minify } = require('uglify-js')
 const replace = require('rollup-plugin-replace')
 const babel = require('rollup-plugin-babel')
+const babelHelpers = require('babel-helpers')
 
 const build = async (opts) => {
   const plugins = [
@@ -14,8 +15,10 @@ const build = async (opts) => {
         'stage-0'
       ],
       plugins: [
-        'transform-decorators-legacy'
-      ]
+        'transform-decorators-legacy',
+        'external-helpers'
+      ],
+      externalHelpersWhitelist: babelHelpers.list.filter(helperName => helperName !== 'asyncGenerator')
     }),
     replace({
       'process.env.NODE_ENV': JSON.stringify(opts.env)
