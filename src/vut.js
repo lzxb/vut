@@ -1,10 +1,10 @@
 import util from './util'
 
-let newId = 0
+let isUse = false
 
 class Vut {
   constructor (options) {
-    newId++
+    isUse = true
     this.modules = {}
     this.plugins = []
     util.callInstanceHook(this, 'beforeCreate')
@@ -67,6 +67,11 @@ class Vut {
   }
   destroy () {
     util.callInstanceHook(this, 'beforeDestroy')
+    Object.keys(this.modules).forEach(path => {
+      const goods = this.modules[path]
+      util.callModuleHook(this, goods, 'beforeDestroy')
+      util.callModuleHook(this, goods, 'destroyed')
+    })
     util.callInstanceHook(this, 'destroyed')
   }
 }
@@ -79,7 +84,7 @@ Object.assign(Vut, {
     if (!util.isObject(plugin)) {
       util.error(`plugin not is object type`)
     }
-    if (newId) {
+    if (isUse) {
       return util.error(`'Vut.use(plugin)' must in 'new Vut()' before`)
     }
     this.options.plugins.push(plugin)

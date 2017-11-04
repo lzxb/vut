@@ -202,13 +202,13 @@ var createClass = function () {
   };
 }();
 
-var newId = 0;
+var isUse = false;
 
 var Vut$1 = function () {
   function Vut(options) {
     classCallCheck(this, Vut);
 
-    newId++;
+    isUse = true;
     this.modules = {};
     this.plugins = [];
     util.callInstanceHook(this, 'beforeCreate');
@@ -289,7 +289,14 @@ var Vut$1 = function () {
   }, {
     key: 'destroy',
     value: function destroy() {
+      var _this2 = this;
+
       util.callInstanceHook(this, 'beforeDestroy');
+      Object.keys(this.modules).forEach(function (path) {
+        var goods = _this2.modules[path];
+        util.callModuleHook(_this2, goods, 'beforeDestroy');
+        util.callModuleHook(_this2, goods, 'destroyed');
+      });
       util.callInstanceHook(this, 'destroyed');
     }
   }]);
@@ -304,7 +311,7 @@ Object.assign(Vut$1, {
     if (!util.isObject(plugin)) {
       util.error('plugin not is object type');
     }
-    if (newId) {
+    if (isUse) {
       return util.error('\'Vut.use(plugin)\' must in \'new Vut()\' before');
     }
     this.options.plugins.push(plugin);
