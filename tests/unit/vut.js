@@ -24,39 +24,122 @@ const USER = {
   }
 }
 
-ava('new a instance', t => {
-  const logPlugin = {
-    instance: {
-      beforeCreate () {
-        this.$logs = [{ name: 'instance.beforeCreate', self: this }]
-      },
-      created () {
-        this.$logs.push({ name: 'instance.created', self: this })
-      },
-      beforeDestroy () {
-        this.$logs.push({ name: 'instance.beforeDestroy', self: this })
-      },
-      destroyed () {
-        this.$logs.push({ name: 'instance.destroyed', self: this })
-      }
+const logPlugin = {
+  instance: {
+    beforeCreate () {
+      this.$logs = [{ name: 'instance.beforeCreate', self: this }]
     },
-    module: {
-      beforeCreate () {
-        this.$logs = this.$context.$logs
-        this.$logs.push({ name: 'module.beforeCreate', self: this })
-      },
-      created () {
-        this.$logs.push({ name: 'module.created', self: this })
-      },
-      beforeDestroy () {
-        this.$logs.push({ name: 'module.beforeDestroy', self: this })
-      },
-      destroyed () {
-        this.$logs.push({ name: 'module.destroyed', self: this })
-      }
+    created () {
+      this.$logs.push({ name: 'instance.created', self: this })
+    },
+    beforeDestroy () {
+      this.$logs.push({ name: 'instance.beforeDestroy', self: this })
+    },
+    destroyed () {
+      this.$logs.push({ name: 'instance.destroyed', self: this })
+    }
+  },
+  module: {
+    beforeCreate () {
+      this.$logs = this.$context.$logs
+      this.$logs.push({ name: 'module.beforeCreate', self: this })
+    },
+    created () {
+      this.$logs.push({ name: 'module.created', self: this })
+    },
+    beforeDestroy () {
+      this.$logs.push({ name: 'module.beforeDestroy', self: this })
+    },
+    destroyed () {
+      this.$logs.push({ name: 'module.destroyed', self: this })
     }
   }
-  Vut.use(logPlugin)
+}
+
+Vut.use(logPlugin)
+
+ava.serial('check errors', t => {
+  const store = new Vut()
+  const logs = []
+
+  try {
+    Vut.use()
+  } catch (e) {
+    logs.push(e.toString())
+  }
+
+  try {
+    store.addModules(null)
+  } catch (e) {
+    logs.push(e.toString())
+  }
+
+  try {
+    store.addModules('')
+  } catch (e) {
+    logs.push(e.toString())
+  }
+
+  try {
+    store.addModules('user', null)
+  } catch (e) {
+    logs.push(e.toString())
+  }
+
+  try {
+    store.addModules('user', {
+      data: null
+    })
+  } catch (e) {
+    logs.push(e.toString())
+  }
+
+  try {
+    store.addModules('user', {
+      data () {}
+    })
+  } catch (e) {
+    logs.push(e.toString())
+  }
+
+  try {
+    store
+      .addModules('user', {
+        data () {
+          return {}
+        }
+      })
+      .addModules('user', {})
+  } catch (e) {
+    logs.push(e.toString())
+  }
+
+  try {
+    Vut.use({})
+  } catch (e) {
+    logs.push(e.toString())
+  }
+
+  try {
+    store.getModule()
+  } catch (e) {
+    logs.push(e.toString())
+  }
+
+  t.deepEqual([
+    'Error: [Vut] plugin not is object type',
+    'Error: [Vut] \'path=null\' not is string type',
+    'Error: [Vut] \'path\' not is null string',
+    'Error: [Vut] user \'options\' not is object type',
+    'Error: [Vut] \'user\' not is function type',
+    'Error: [Vut] \'store.getAction(user).data()\' return value not is object type',
+    'Error: [Vut] \'user\' already is in module',
+    'Error: [Vut] \'Vut.use(plugin)\' must in \'new Vut()\' before',
+    'Error: [Vut] The parameter is illegal. Please use \'store.getModule(path: string)\' or \'store.getModule({ [path: string]: string })\''
+  ], logs)
+})
+
+ava.serial('new a instance', t => {
   t.deepEqual(Vut.options.plugins, [logPlugin])
   const store = new Vut()
   store.addModules('user', USER)
@@ -130,78 +213,7 @@ ava('new a instance', t => {
   ], store.$logs)
 })
 
-ava('check errors', t => {
-  const store = new Vut()
-  const logs = []
-
-  try {
-    store.addModules(null)
-  } catch (e) {
-    logs.push(e.toString())
-  }
-
-  try {
-    store.addModules('')
-  } catch (e) {
-    logs.push(e.toString())
-  }
-
-  try {
-    store.addModules('user', null)
-  } catch (e) {
-    logs.push(e.toString())
-  }
-
-  try {
-    store.addModules('user', {
-      data: null
-    })
-  } catch (e) {
-    logs.push(e.toString())
-  }
-
-  try {
-    store.addModules('user', {
-      data () {}
-    })
-  } catch (e) {
-    logs.push(e.toString())
-  }
-
-  try {
-    store
-      .addModules('user', {
-        data () {
-          return {}
-        }
-      })
-      .addModules('user', {
-        data () {
-          return {}
-        }
-      })
-  } catch (e) {
-    logs.push(e.toString())
-  }
-
-  try {
-    Vut.use({})
-  } catch (e) {
-    logs.push(e.toString())
-  }
-
-  t.deepEqual([
-    'Error: [Vut] \'path=null\' not is string type',
-    'Error: [Vut] \'path\' not is null string',
-    'Error: [Vut] user \'options\' not is object type',
-    'Error: [Vut] \'user\' not is function type',
-    'Error: [Vut] \'vut.getAction(user).data()\' return value not is object type',
-    'Error: [Vut] \'user\' already is in module',
-    'Error: [Vut] \'Vut.use(plugin)\' must in \'new Vut()\' before'
-  ], logs)
-})
-
-ava('function return value', t => {
+ava.serial('function return value', t => {
   const store = new Vut()
   t.is(store, store.addModules('user', USER))
 

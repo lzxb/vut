@@ -36,6 +36,7 @@ var util = {
       });
       return data;
     }
+    util.error('The parameter is illegal. Please use \'store.getModule(path: string)\' or \'store.getModule({ [path: string]: string })\'');
   },
   callModuleHook: function callModuleHook(vut, goods, name) {
     var mixins = Vut$1.options.plugins.filter(function (plugin) {
@@ -257,7 +258,7 @@ var Vut$1 = function () {
       // Bind state
       goods.$state = goods.$actions.data();
       if (!util.isObject(goods.$state)) {
-        util.error('\'vut.getAction(' + path + ').data()\' return value not is object type');
+        util.error('\'store.getAction(' + path + ').data()\' return value not is object type');
       }
 
       // Path compression

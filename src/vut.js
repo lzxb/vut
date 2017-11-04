@@ -48,7 +48,7 @@ class Vut {
     // Bind state
     goods.$state = goods.$actions.data()
     if (!util.isObject(goods.$state)) {
-      util.error(`'vut.getAction(${path}).data()' return value not is object type`)
+      util.error(`'store.getAction(${path}).data()' return value not is object type`)
     }
 
     // Path compression

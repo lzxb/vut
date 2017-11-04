@@ -32,6 +32,7 @@ const util = {
       })
       return data
     }
+    util.error(`The parameter is illegal. Please use 'store.getModule(path: string)' or 'store.getModule({ [path: string]: string })'`)
   },
   callModuleHook (vut, goods, name) {
     const mixins = Vut
