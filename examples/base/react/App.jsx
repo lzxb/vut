@@ -7,9 +7,9 @@ class App extends React.Component {
     return (
       <div>
         <p>{census.count}</p>
-        <button onClick={() => census.plus()}>plus</button>
-        <button onClick={() => census.minus()}>minus</button>
-        <input type="number" value={census.count} onInput={(e) => census.setCount(parseInt(e.target.value) || 0)} />
+        <button className="plus" onClick={() => census.plus()}>plus</button>
+        <button className="minus" onClick={() => census.minus()}>minus</button>
+        <input className="input" type="number" value={census.count} onInput={(e) => census.setCount(parseInt(e.target.value) || 0)} />
       </div>
     )
   }

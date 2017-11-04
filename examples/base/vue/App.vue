@@ -1,9 +1,9 @@
 <template>
-      <div>
+      <div id="app-vue">
         <p>{{census.count}}</p>
-        <button @click="census.plus">plus</button>
-        <button @click="census.minus">minus</button>
-        <input type="number" :value="census.count" @input="(e) => census.setCount(parseInt(e.target.value) || 0)" />
+        <button class="plus" @click="census.plus">plus</button>
+        <button class="minus" @click="census.minus">minus</button>
+        <input class="input" type="number" :value="census.count" @input="(e) => census.setCount(parseInt(e.target.value) || 0)" />
       </div>
 </template>
 <script>

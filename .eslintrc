@@ -1,9 +1,11 @@
 {
   "root": true,
   "plugins": [
-    "html"
+    "html",
+    "testcafe"
   ],
   "extends": [
+    "plugin:testcafe/recommended",
     "standard",
     "standard-react"
   ],
