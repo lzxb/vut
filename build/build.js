@@ -12,7 +12,8 @@ const build = async (opts) => {
       babelrc: false,
       presets: [
         ['es2015-rollup'],
-        'stage-0'
+        'stage-0',
+        'react'
       ],
       plugins: [
         'transform-decorators-legacy',
@@ -33,26 +34,71 @@ const build = async (opts) => {
     }, minify))
   }
   const bundle = await rollup({
-    input: path.resolve(__dirname, '../src/index.js'),
-    plugins
+    input: path.resolve(__dirname, opts.input),
+    plugins,
+    external: ['react', 'prop-types']
   })
   await bundle.write({
-    name: 'Vut',
+    name: opts.name,
     format: 'umd',
     ...opts,
     file: `dist/${opts.file}`,
-    sourcemap: true
+    sourcemap: true,
+    globals: {
+      'react': 'React',
+      'prop-types': 'PropTypes'
+    }
   })
 }
 
 const list = [
   {
+    name: 'Vut',
+    input: '../src/index.js',
     env: 'production',
     file: 'vut.min.js'
   },
   {
+    name: 'Vut',
+    input: '../src/index.js',
     env: 'development',
     file: 'vut.js'
+  },
+  {
+    name: 'vutDep',
+    input: '../src/plugins/vut-dep.js',
+    env: 'production',
+    file: 'vut-dep.min.js'
+  },
+  {
+    name: 'vutDep',
+    input: '../src/plugins/vut-dep.js',
+    env: 'development',
+    file: 'vut-dep.js'
+  },
+  {
+    name: 'vutReact',
+    input: '../src/plugins/vut-react.jsx',
+    env: 'production',
+    file: 'vut-react.min.js'
+  },
+  {
+    name: 'vutReact',
+    input: '../src/plugins/vut-react.jsx',
+    env: 'development',
+    file: 'vut-react.js'
+  },
+  {
+    name: 'vutVue',
+    input: '../src/plugins/vut-vue.js',
+    env: 'production',
+    file: 'vut-vue.min.js'
+  },
+  {
+    name: 'vutVue',
+    input: '../src/plugins/vut-vue.js',
+    env: 'development',
+    file: 'vut-vue.js'
   }
 ]
 list.forEach(opts => build(opts))
