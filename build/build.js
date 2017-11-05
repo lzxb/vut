@@ -68,37 +68,37 @@ const list = [
     name: 'vutDep',
     input: '../src/plugins/vut-dep.js',
     env: 'production',
-    file: 'vut-dep.min.js'
+    file: 'plugins/vut-dep/vut-dep.min.js'
   },
   {
     name: 'vutDep',
     input: '../src/plugins/vut-dep.js',
     env: 'development',
-    file: 'vut-dep.js'
+    file: 'plugins/vut-dep/vut-dep.js'
   },
   {
     name: 'vutReact',
     input: '../src/plugins/vut-react.jsx',
     env: 'production',
-    file: 'vut-react.min.js'
+    file: 'plugins/vut-react/vut-react.min.js'
   },
   {
     name: 'vutReact',
     input: '../src/plugins/vut-react.jsx',
     env: 'development',
-    file: 'vut-react.js'
+    file: 'plugins/vut-react/vut-react.js'
   },
   {
     name: 'vutVue',
     input: '../src/plugins/vut-vue.js',
     env: 'production',
-    file: 'vut-vue.min.js'
+    file: 'plugins/vut-vue/vut-vue.min.js'
   },
   {
     name: 'vutVue',
     input: '../src/plugins/vut-vue.js',
     env: 'development',
-    file: 'vut-vue.js'
+    file: 'plugins/vut-vue/vut-vue.js'
   }
 ]
 list.forEach(opts => build(opts))
