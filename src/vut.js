@@ -41,7 +41,10 @@ class Vut {
     Object.keys(goods.$options).forEach(fnName => {
       if (typeof goods.$options[fnName] !== 'function') return
       goods.$actions[fnName] = function action () {
-        return goods.$options[fnName].apply(goods, arguments)
+        util.callModuleHook(this, goods, 'beforeAction', fnName)
+        const res = goods.$options[fnName].apply(goods, arguments)
+        util.callModuleHook(this, goods, 'actioned', fnName, res)
+        return res
       }
     })
 

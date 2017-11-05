@@ -30,6 +30,12 @@ const logPlugin = {
     },
     destroyed () {
       this.$logs.push({ name: 'module.destroyed', self: this })
+    },
+    beforeAction (fnName) {
+      this.$logs.push({ name: 'module.beforeAction', self: this, fnName })
+    },
+    actioned (fnName, res) {
+      this.$logs.push({ name: 'module.actioned', self: this, fnName, res })
     }
   }
 }
@@ -167,6 +173,17 @@ ava.serial('new a instance', t => {
       self: vut.getModule('user/order')
     },
     {
+      name: 'module.beforeAction',
+      self: vut.getModule('user/order'),
+      fnName: 'data'
+    },
+    {
+      name: 'module.actioned',
+      self: vut.getModule('user/order'),
+      fnName: 'data',
+      res: vut.getState('user/order')
+    },
+    {
       name: 'module.created',
       self: vut.getModule('user/order')
     },
@@ -175,8 +192,41 @@ ava.serial('new a instance', t => {
       self: vut.getModule('user')
     },
     {
+      name: 'module.beforeAction',
+      self: vut.getModule('user'),
+      fnName: 'data'
+    },
+    {
+      name: 'module.actioned',
+      self: vut.getModule('user'),
+      fnName: 'data',
+      res: vut.getState('user')
+    },
+    {
       name: 'module.created',
       self: vut.getModule('user')
+    },
+    {
+      name: 'module.beforeAction',
+      self: vut.getModule('user'),
+      fnName: 'updateName'
+    },
+    {
+      name: 'module.actioned',
+      self: vut.getModule('user'),
+      fnName: 'updateName',
+      res: 'LZXB'
+    },
+    {
+      name: 'module.beforeAction',
+      self: vut.getModule('user/order'),
+      fnName: 'plus'
+    },
+    {
+      name: 'module.actioned',
+      self: vut.getModule('user/order'),
+      fnName: 'plus',
+      res: vut.getModule('user/order').list
     },
     {
       name: 'instance.beforeDestroy',

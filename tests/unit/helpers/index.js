@@ -7,6 +7,7 @@ export default {
     },
     updateName (name) {
       this.name = name
+      return this.name
     },
     modules: {
       order: {
@@ -17,6 +18,7 @@ export default {
         },
         plus () {
           this.list.push(this.list.length + 1)
+          return this.list
         }
       }
     }

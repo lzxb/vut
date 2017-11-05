@@ -40,7 +40,7 @@ const util = {
     }
     util.error(`The parameter is illegal. Please use 'vut.getModule(path: string)' or 'vut.getModule({ [path: string]: string })'`)
   },
-  callModuleHook (vut, goods, name) {
+  callModuleHook (vut, goods, name, ...arg) {
     const mixins = Vut
       .options
       .plugins
@@ -50,10 +50,10 @@ const util = {
       .map(plugin => plugin.module)
     mixins.forEach(mixin => {
       if (!util.has(mixin, name)) return
-      mixin[name].call(goods)
+      mixin[name].apply(goods, arg)
     })
   },
-  callInstanceHook (vut, name) {
+  callInstanceHook (vut, name, ...arg) {
     const mixins = Vut
       .options
       .plugins
@@ -63,7 +63,7 @@ const util = {
       .map(plugin => plugin.instance)
     mixins.forEach(mixin => {
       if (!util.has(mixin, name)) return
-      mixin[name].call(vut)
+      mixin[name].apply(vut, arg)
     })
   }
 }

@@ -45,6 +45,10 @@ var util = {
     util.error('The parameter is illegal. Please use \'vut.getModule(path: string)\' or \'vut.getModule({ [path: string]: string })\'');
   },
   callModuleHook: function callModuleHook(vut, goods, name) {
+    for (var _len = arguments.length, arg = Array(_len > 3 ? _len - 3 : 0), _key = 3; _key < _len; _key++) {
+      arg[_key - 3] = arguments[_key];
+    }
+
     var mixins = Vut$1.options.plugins.filter(function (plugin) {
       return util.isObject(plugin.module);
     }).map(function (plugin) {
@@ -52,10 +56,14 @@ var util = {
     });
     mixins.forEach(function (mixin) {
       if (!util.has(mixin, name)) return;
-      mixin[name].call(goods);
+      mixin[name].apply(goods, arg);
     });
   },
   callInstanceHook: function callInstanceHook(vut, name) {
+    for (var _len2 = arguments.length, arg = Array(_len2 > 2 ? _len2 - 2 : 0), _key2 = 2; _key2 < _len2; _key2++) {
+      arg[_key2 - 2] = arguments[_key2];
+    }
+
     var mixins = Vut$1.options.plugins.filter(function (plugin) {
       return util.isObject(plugin.instance);
     }).map(function (plugin) {
@@ -63,7 +71,7 @@ var util = {
     });
     mixins.forEach(function (mixin) {
       if (!util.has(mixin, name)) return;
-      mixin[name].call(vut);
+      mixin[name].apply(vut, arg);
     });
   }
 };
@@ -140,7 +148,10 @@ var Vut$1 = function () {
       Object.keys(goods.$options).forEach(function (fnName) {
         if (typeof goods.$options[fnName] !== 'function') return;
         goods.$actions[fnName] = function action() {
-          return goods.$options[fnName].apply(goods, arguments);
+          util.callModuleHook(this, goods, 'beforeAction', fnName);
+          var res = goods.$options[fnName].apply(goods, arguments);
+          util.callModuleHook(this, goods, 'actioned', fnName, res);
+          return res;
         };
       });
 
